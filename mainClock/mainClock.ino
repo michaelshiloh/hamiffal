@@ -1,28 +1,39 @@
+
+/* Controller for Body of Work (גוף הזמן)
+    at HaMiffal
+
+    TODO
+    * fix when minutes roll over from 59 to 0
+*/
+
 // Date and time functions using a DS1307 RTC connected via I2C and Wire lib
 #include "RTClib.h"
 
 // Pin definitions
 // Note that rtc uses SDA and SCL which is pins A4 and A5 so don't use them
 
-// Each project has a trigger and a done signal
-const int P1TriggerPin = 2;
-const int P1DonePin = 3;
-const int P2TriggerPin = 4;
-const int P2DonePin = 5;
-const int P3TriggerPin = 6;
-const int P3DonePin = 7;
-const int P4TriggerPin = 8;
-const int P4DonePin = 9;
-const int P5TriggerPin = 10;
-const int P5DonePin = 11;
+// outputs for relay board
+// NOTE THAT RELAY IS ACTIVE LOW
+const int FOURBAR_PIN = 2;
+const int unused3 = 3;
+const int unused4 = 4;
+const int unused5 = 5;
 
 // For debugging our own trigger and NeoPixels for output
 const int myTriggerPin = 12;
 const int neoPixelsPin = 13;
 
+// globals for recording time
+int lastMinute = 0;
+
 RTC_DS1307 rtc;
 
 void setup () {
+  
+  // Initialize outputs
+  pinMode (FOURBAR_PIN, OUTPUT);
+  digitalWrite(FOURBAR_PIN, HIGH); // active LOW
+  
   Serial.begin(9600);
 
   if (! rtc.begin()) {
@@ -48,49 +59,35 @@ void setup () {
   // January 21, 2014 at 3am you would call:
   // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
 
-  pinMode (P1TriggerPin, OUTPUT);
-  pinMode (P2TriggerPin, OUTPUT);
-  pinMode (P3TriggerPin, OUTPUT);
-  pinMode (P4TriggerPin, OUTPUT);
-  pinMode (P5TriggerPin, OUTPUT);
-  
-  digitalWrite(P1TriggerPin, LOW);
-  digitalWrite(P2TriggerPin, LOW);
-  digitalWrite(P3TriggerPin, LOW);
-  digitalWrite(P4TriggerPin, LOW);
-  digitalWrite(P5TriggerPin, LOW);
+  // Initialize the previous times
+  DateTime now = rtc.now();
+  lastMinute = now.minute();
+
+  delay(100);
+
 }
 
 void loop () {
-    DateTime now = rtc.now();
+  DateTime now = rtc.now();
 
-    Serial.print(now.hour(), DEC);
-    Serial.print(':');
-    Serial.print(now.minute(), DEC);
-    Serial.print(':');
-    Serial.print(now.second(), DEC);
-    Serial.println();
-    
-    if (15 == now.minute()) {
-      Serial.println("Quarter hour");
-      triggerProjects();
-    }
-    if (30 == now.minute()) {
-      Serial.println("Half hour");
-      triggerProjects();
-    }
-    if (0 == now.minute()) {
-      Serial.println("On the hour");
-      triggerProjects();
-    }
+  Serial.print(now.hour(), DEC);
+  Serial.print(':');
+  Serial.print(now.minute(), DEC);
+  Serial.print(':');
+  Serial.print(now.second(), DEC);
+  Serial.println();
 
-    delay(1000);
+  if (lastMinute + 1 == now.minute()) {
+    Serial.println("One minute");
+    triggerMinutes();
+    lastMinute = now.minute();
+  }
 }
 
-void triggerProjects() {
-  digitalWrite(P1TriggerPin, HIGH);
-  while (!digitalRead(P1DonePin)) {
-    delay(1000);
-  }
-  digitalWrite(P1TriggerPin, LOW);
+void triggerMinutes() {
+
+  digitalWrite(FOURBAR_PIN, LOW); // active LOW
+  delay(10000);
+  digitalWrite(FOURBAR_PIN, HIGH); // active LOW
+
 }
