@@ -18,7 +18,8 @@ const int FOURBAR_PIN = 2;
 const int unused3 = 3;
 const int unused4 = 4;
 const int CLICKY_PIN = 5;
-const int CLICKY_PIN = 5;
+const int SPINNING_LAMP_LED_PIN = 6;
+const int SPINNING_LAMP_MOTOR_PIN = 7;
 
 // globals for recording time
 int lastMinute = 0;
@@ -33,6 +34,8 @@ void setup () {
   digitalWrite(FOURBAR_PIN, HIGH); // active LOW
   pinMode (CLICKY_PIN, OUTPUT);
   digitalWrite(CLICKY_PIN, HIGH); // active LOW
+  pinMode (SPINNING_LAMP_MOTOR_PIN, OUTPUT);
+  digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW); 
 
   Serial.begin(9600);
   Serial.println("Main clock for HaMiffal");
@@ -92,9 +95,17 @@ void loop () {
 
   if (lastMinute + 1 == now.minute()) {
     Serial.println("One minute");
+    runSpinningLamp();
     runFourBar();
     lastMinute = now.minute();
   }
+}
+
+void runSpinningLamp() {
+
+  digitalWrite(SPINNING_LAMP_MOTOR_PIN, HIGH);
+  delay(10000);
+  digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW); 
 }
 
 void runFourBar() {
