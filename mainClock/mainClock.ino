@@ -3,7 +3,7 @@
     at HaMiffal
 
     TODO
-    * fix when minutes roll over from 59 to 0
+      fix when minutes roll over from 59 to 0
 */
 
 // Date and time functions using a DS1307 RTC connected via I2C and Wire lib
@@ -17,24 +17,25 @@
 const int FOURBAR_PIN = 2;
 const int unused3 = 3;
 const int unused4 = 4;
-const int unused5 = 5;
-
-// For debugging our own trigger and NeoPixels for output
-const int myTriggerPin = 12;
-const int neoPixelsPin = 13;
+const int CLICKY_PIN = 5;
+const int CLICKY_PIN = 5;
 
 // globals for recording time
 int lastMinute = 0;
+int lastSeconds = 0;
 
 RTC_DS1307 rtc;
 
 void setup () {
-  
+
   // Initialize outputs
   pinMode (FOURBAR_PIN, OUTPUT);
   digitalWrite(FOURBAR_PIN, HIGH); // active LOW
-  
+  pinMode (CLICKY_PIN, OUTPUT);
+  digitalWrite(CLICKY_PIN, HIGH); // active LOW
+
   Serial.begin(9600);
+  Serial.println("Main clock for HaMiffal");
 
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -64,30 +65,66 @@ void setup () {
   lastMinute = now.minute();
 
   delay(100);
+  Serial.println("setup finished");
 
 }
 
 void loop () {
   DateTime now = rtc.now();
+  printTime();
 
+  if (lastSeconds >= now.second()) {
+    printTime();
+    Serial.println("Resetting seconds");
+    lastSeconds = 0;
+  }
+  if (1 == now.minute()) {
+    printTime();
+    Serial.println("Resetting minutes");
+    lastMinute = 0;
+  }
+
+  if (lastSeconds + 23 == now.second()) {
+    Serial.println("23 Seconds");
+    runClickeyThing();
+    lastSeconds = now.second();
+  }
+
+  if (lastMinute + 1 == now.minute()) {
+    Serial.println("One minute");
+    runFourBar();
+    lastMinute = now.minute();
+  }
+}
+
+void runFourBar() {
+
+  digitalWrite(FOURBAR_PIN, LOW); // active LOW
+  delay(10000);
+  digitalWrite(FOURBAR_PIN, HIGH); // active LOW
+}
+
+void runClickeyThing() {
+
+  digitalWrite(CLICKY_PIN, LOW); // active LOW
+  delay(1000);
+  digitalWrite(CLICKY_PIN, HIGH); // active LOW
+  delay(1000);
+  digitalWrite(CLICKY_PIN, LOW); // active LOW
+  delay(1000);
+  digitalWrite(CLICKY_PIN, HIGH); // active LOW
+  delay(1000);
+  digitalWrite(CLICKY_PIN, LOW); // active LOW
+  delay(1000);
+  digitalWrite(CLICKY_PIN, HIGH); // active LOW
+}
+
+void printTime() {
+  DateTime now = rtc.now();
   Serial.print(now.hour(), DEC);
   Serial.print(':');
   Serial.print(now.minute(), DEC);
   Serial.print(':');
   Serial.print(now.second(), DEC);
   Serial.println();
-
-  if (lastMinute + 1 == now.minute()) {
-    Serial.println("One minute");
-    triggerMinutes();
-    lastMinute = now.minute();
-  }
-}
-
-void triggerMinutes() {
-
-  digitalWrite(FOURBAR_PIN, LOW); // active LOW
-  delay(10000);
-  digitalWrite(FOURBAR_PIN, HIGH); // active LOW
-
 }
