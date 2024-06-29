@@ -36,6 +36,8 @@ void setup () {
   digitalWrite(CLICKY_PIN, HIGH); // active LOW
   pinMode (SPINNING_LAMP_MOTOR_PIN, OUTPUT);
   digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW); 
+  pinMode (SPINNING_LAMP_LED_PIN, OUTPUT);
+ analogWrite(SPINNING_LAMP_LED_PIN, 50); 
 
   Serial.begin(9600);
   Serial.println("Main clock for HaMiffal");
