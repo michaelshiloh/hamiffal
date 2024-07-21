@@ -62,110 +62,118 @@ class ClickyThing
 
     void Update()
     {
+      Serial.print("clickState = ");
+      Serial.print(clickState);
+      Serial.print("\tinSequenceState = ");
+      Serial.print(inSequenceState);
+      Serial.print("\tclickCount = ");
+      Serial.print(clickCount);
+      Serial.println();
+
       // we have two cases: either we are in a sequence, or we are between sequences
 
       if (!inSequenceState) {
-        // we are between sequences
+        Serial.println("we are between sequences");
 
         // Is it time to start a new sequence?
         if ((millis() - lastSequenceStarted) > timeBetweenSequences)
         {
-          // turn on click
-          digitalWrite(CLICKY_PIN, LOW); // active LOW
+          Serial.println("turn on click");
+                         digitalWrite(CLICKY_PIN, LOW); // active LOW
 
-          // update state
-          clickState = 1;
-          inSequenceState = 1;
-          lastClickStateChange = millis();
-          lastSequenceStarted = millis();
-          clickCount = 0;
+                         // update state
+                         clickState = 1;
+                         inSequenceState = 1;
+                         lastClickStateChange = millis();
+                         lastSequenceStarted = millis();
+                         clickCount = 0;
 
-        }
-      } else { // otherwise, we are not between sequences
-        // so  we must be in the midst of a sequence
-        if (!clickState) {
+                       }
+                       } else { // otherwise, we are not between sequences
+                         // so  we must be in the midst of a sequence
+                         if (!clickState) {
 
-          // click is off so check whether it is time to turn it on
-          if ((millis() - lastClickStateChange) > offTime) {
-            // turn on click
-            digitalWrite(pinNumber, LOW); // active LOW
+                         // click is off so check whether it is time to turn it on
+                         if ((millis() - lastClickStateChange) > offTime) {
+                         Serial.println("turn on click");
+                         digitalWrite(pinNumber, LOW); // active LOW
 
-            // update state
-            clickState = 1;
-            lastClickStateChange = millis();
-          }
-        } else {
-          // click is on so check whether it's time to turn it off
-          if ((millis() - lastClickStateChange) > onTime) {
-            // turn off click
-            digitalWrite(pinNumber, HIGH); // active LOW
+                         // update state
+                         clickState = 1;
+                         lastClickStateChange = millis();
+                       }
+                       } else {
+                         // click is on so check whether it's time to turn it off
+                         if ((millis() - lastClickStateChange) > onTime) {
+                         Serial.println("turn off click");
+                         digitalWrite(pinNumber, HIGH); // active LOW
 
-            // update state
-            clickState = 0;
-            lastClickStateChange = millis();
+                         // update state
+                         clickState = 0;
+                         lastClickStateChange = millis();
 
-            // since we finished a click, increment the click count
-            clickCount++;
+                         // since we finished a click, increment the click count
+                         clickCount++;
 
-            // check to see if we're done with this sequence
-            if (clickCount > numberClicksPerSequence) {
-              // we're done
-              inSequenceState = 0;
-            }
-          }
-        }
-      }
-    }
-};
+                         // check to see if we're done with this sequence
+                         if (clickCount > numberClicksPerSequence) {
+                         Serial.println("click dequence done");
+                         inSequenceState = 0;
+                       }
+                       }
+                       }
+                       }
+                       }
+                       };
 
-ClickyThing clickyThing(CLICKY_PIN);
-
-
-void setup () {
-
-  // Initialize outputs
-  pinMode (FOURBAR_PIN, OUTPUT);
-  digitalWrite(FOURBAR_PIN, HIGH); // active LOW
-  pinMode (SPINNING_LAMP_MOTOR_PIN, OUTPUT);
-  digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW);
-  pinMode (RATTLE_PIN, OUTPUT);
-  digitalWrite(RATTLE_PIN, LOW);
-
-  Serial.begin(9600);
-  Serial.println("Main clock for HaMiffal");
-
-  delay(100);
-  Serial.println("setup finished");
-
-}
-
-void loop () {
-
-  clickyThing.Update();
-}
-
-void runSpinningLamp() {
-
-  Serial.println("Spinning Lamp");
-  digitalWrite(SPINNING_LAMP_MOTOR_PIN, HIGH);
-  delay(3000);
-  digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW);
-}
-
-void runFourBar() {
-
-  Serial.println("Four Bar");
-  digitalWrite(FOURBAR_PIN, LOW); // active LOW
-  delay(10000);
-  digitalWrite(FOURBAR_PIN, HIGH); // active LOW
-}
+                         ClickyThing clickyThing(CLICKY_PIN);
 
 
+                         void setup () {
 
-void runRattle() {
+                         // Initialize outputs
+                         pinMode (FOURBAR_PIN, OUTPUT);
+                         digitalWrite(FOURBAR_PIN, HIGH); // active LOW
+                         pinMode (SPINNING_LAMP_MOTOR_PIN, OUTPUT);
+                         digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW);
+                         pinMode (RATTLE_PIN, OUTPUT);
+                         digitalWrite(RATTLE_PIN, LOW);
 
-  Serial.println("Rattle");
-  digitalWrite(RATTLE_PIN, HIGH);
-  delay(7000);
-  digitalWrite(RATTLE_PIN, LOW);
-}
+                         Serial.begin(9600);
+                         Serial.println("Main clock for HaMiffal");
+
+                         delay(100);
+                         Serial.println("setup finished");
+
+                       }
+
+                         void loop () {
+
+                         clickyThing.Update();
+                       }
+
+                         void runSpinningLamp() {
+
+                         Serial.println("Spinning Lamp");
+                         digitalWrite(SPINNING_LAMP_MOTOR_PIN, HIGH);
+                         delay(3000);
+                         digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW);
+                       }
+
+                         void runFourBar() {
+
+                         Serial.println("Four Bar");
+                         digitalWrite(FOURBAR_PIN, LOW); // active LOW
+                         delay(10000);
+                         digitalWrite(FOURBAR_PIN, HIGH); // active LOW
+                       }
+
+
+
+                         void runRattle() {
+
+                         Serial.println("Rattle");
+                         digitalWrite(RATTLE_PIN, HIGH);
+                         delay(7000);
+                         digitalWrite(RATTLE_PIN, LOW);
+                       }
