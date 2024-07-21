@@ -219,7 +219,7 @@ class SpinningLamp
 {
     int pinNumber;
     int onTime = 2100;
-    int offTime = 38570;
+    int offTime = 32570;
     int state = 0;
     unsigned long lastStateChange = 0;
 
