@@ -18,7 +18,7 @@ TODO
 // outputs for relay board
 // NOTE THAT RELAY IS ACTIVE LdOW
 const int FOURBAR_PIN = 2;
-const int unused3 = 3;
+const int FLYINGSAUCER_PIN = 3;
 const int unused4 = 4;
 const int CLICKY_PIN = 5;
 
@@ -44,10 +44,10 @@ const int unusedA3 = A3;
 class ClickyThing
 {
     int pinNumber;
-    int onTime = 900;
+    int onTime = 905;
     int offTime = 990;
-    int timeBetweenSequences = 22000;
-    int numberClicksPerSequence = 4;
+    int timeBetweenSequences = 52220;
+    int numberClicksPerSequence = 3;
     int clickState = 0;
     int inSequenceState = 0;
     int clickCount = 0;
@@ -131,8 +131,8 @@ class ClickyThing
 class Rattle
 {
     int pinNumber;
-    int onTime = 3000;
-    int offTime = 19000;
+    int onTime = 2800;
+    int offTime = 19040;
     int state = 0;
     unsigned long lastStateChange = 0;
 
@@ -174,8 +174,8 @@ class Rattle
 class FourBar
 {
     int pinNumber;
-    int onTime = 9000;
-    int offTime = 15000;
+    int onTime = 8100;
+    int offTime = 17200;
     int state = 0;
     unsigned long lastStateChange = 0;
 
@@ -218,8 +218,8 @@ class FourBar
 class SpinningLamp
 {
     int pinNumber;
-    int onTime = 2500;
-    int offTime = 28500;
+    int onTime = 2100;
+    int offTime = 38570;
     int state = 0;
     unsigned long lastStateChange = 0;
 
@@ -258,10 +258,55 @@ class SpinningLamp
     }
 };
 
+
+class FlyingSaucer
+{
+    int pinNumber;
+    int onTime = 800;
+    int offTime = 3570;
+    int state = 0;
+    unsigned long lastStateChange = 0;
+
+  public:
+    FlyingSaucer( int _pinNumber)
+    {
+      pinNumber = _pinNumber;
+      pinMode (pinNumber, OUTPUT);
+      digitalWrite(pinNumber, HIGH);
+    }
+
+    void Update()
+    {
+      if (!state) {
+        //  is off so check whether it is time to turn it on
+        if ((millis() - lastStateChange) > offTime) {
+          Serial.println("turn on flying saucer");
+          digitalWrite(pinNumber, LOW);
+
+          // update state
+          state = 1;
+          lastStateChange = millis();
+        }
+      } else {
+        //  is on so check whether it's time to turn it off
+        if ((millis() - lastStateChange) > onTime) {
+          Serial.println("turn off flying saucer");
+          digitalWrite(pinNumber, HIGH);
+
+          // update state
+          state = 0;
+          lastStateChange = millis();
+
+        }
+      }
+    }
+};
+
 ClickyThing clickyThing (CLICKY_PIN);
 Rattle rattle (RATTLE_PIN);
 FourBar fourBar (FOURBAR_PIN);
 SpinningLamp spinningLamp (SPINNING_LAMP_MOTOR_PIN);
+FlyingSaucer flyingSaucer (FLYINGSAUCER_PIN);
 
 
 void setup () {
@@ -279,4 +324,5 @@ void loop () {
   rattle.Update();
   fourBar.Update();
   spinningLamp.Update();
+  flyingSaucer.Update();
 }
