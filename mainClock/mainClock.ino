@@ -8,6 +8,8 @@
                         make classes for each device
                         as in the Adafruit Multitasking Tutorial
 
+TODO
+ - maybe some randomness ?
 
 */
 
@@ -212,17 +214,57 @@ class FourBar
     }
 };
 
+
+class SpinningLamp
+{
+    int pinNumber;
+    int onTime = 2500;
+    int offTime = 28500;
+    int state = 0;
+    unsigned long lastStateChange = 0;
+
+  public:
+    SpinningLamp( int _pinNumber)
+    {
+      pinNumber = _pinNumber;
+      pinMode (pinNumber, OUTPUT);
+      digitalWrite(pinNumber, LOW);
+    }
+
+    void Update()
+    {
+      if (!state) {
+        //  is off so check whether it is time to turn it on
+        if ((millis() - lastStateChange) > offTime) {
+          Serial.println("turn on spinning lamp");
+          digitalWrite(pinNumber, HIGH);
+
+          // update state
+          state = 1;
+          lastStateChange = millis();
+        }
+      } else {
+        //  is on so check whether it's time to turn it off
+        if ((millis() - lastStateChange) > onTime) {
+          Serial.println("turn off spinning lamp");
+          digitalWrite(pinNumber, LOW);
+
+          // update state
+          state = 0;
+          lastStateChange = millis();
+
+        }
+      }
+    }
+};
+
 ClickyThing clickyThing (CLICKY_PIN);
 Rattle rattle (RATTLE_PIN);
 FourBar fourBar (FOURBAR_PIN);
+SpinningLamp spinningLamp (SPINNING_LAMP_MOTOR_PIN);
 
 
 void setup () {
-
-  // Initialize outputs
-  pinMode (SPINNING_LAMP_MOTOR_PIN, OUTPUT);
-  digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW);
-
   Serial.begin(9600);
   Serial.println("Main clock for HaMiffal");
 
@@ -236,12 +278,5 @@ void loop () {
   clickyThing.Update();
   rattle.Update();
   fourBar.Update();
-}
-
-void runSpinningLamp() {
-
-  Serial.println("Spinning Lamp");
-  digitalWrite(SPINNING_LAMP_MOTOR_PIN, HIGH);
-  delay(3000);
-  digitalWrite(SPINNING_LAMP_MOTOR_PIN, LOW);
+  spinningLamp.Update();
 }
