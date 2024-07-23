@@ -27,10 +27,10 @@ const int RATTLE_PIN = 6;
 const int SPINNING_LAMP_MOTOR_PIN = 7;
 
 // second relay board
-const int SECOND_RELAY_1 = 8;
-const int SECOND_RELAY_2 = 12;
-const int SECOND_RELAY_3 = 13;
-const int SECOND_RELAY_4 = A0;
+const int SECOND_RELAY_x = 8;
+const int SECOND_RELAY_y = 12;
+const int SECOND_RELAY_z = 13;
+const int SCOOTER_PIN = A0;
 
 const int unusedA1 = A1;
 const int unusedA2 = A2;
@@ -262,8 +262,8 @@ class SpinningLamp
 class FlyingSaucer
 {
     int pinNumber;
-    int onTime = 800;
-    int offTime = 3570;
+    int onTime = 1377;
+    int offTime = 9579;
     int state = 0;
     unsigned long lastStateChange = 0;
 
@@ -305,7 +305,7 @@ class FlyingSaucer
 class ChainThing
 {
     int pinNumber;
-    int onTime = 6857;
+    int onTime = 5857;
     int offTime = 13941;
     int state = 0;
     unsigned long lastStateChange = 0;
@@ -345,12 +345,58 @@ class ChainThing
     }
 };
 
+
+class Scooter
+{
+    int pinNumber;
+    int onTime = 23857;
+    int offTime = 3941;
+    int state = 0;
+    unsigned long lastStateChange = 0;
+
+  public:
+    Scooter( int _pinNumber)
+    {
+      pinNumber = _pinNumber;
+      pinMode (pinNumber, OUTPUT);
+      digitalWrite(pinNumber, HIGH);
+    }
+
+    void Update()
+    {
+      if (!state) {
+        //  is off so check whether it is time to turn it on
+        if ((millis() - lastStateChange) > offTime) {
+          Serial.println("turn on flying saucer");
+          digitalWrite(pinNumber, LOW);
+
+          // update state
+          state = 1;
+          lastStateChange = millis();
+        }
+      } else {
+        //  is on so check whether it's time to turn it off
+        if ((millis() - lastStateChange) > onTime) {
+          Serial.println("turn off flying saucer");
+          digitalWrite(pinNumber, HIGH);
+
+          // update state
+          state = 0;
+          lastStateChange = millis();
+
+        }
+      }
+    }
+};
+
+
 ClickyThing clickyThing (CLICKY_PIN);
 Rattle rattle (RATTLE_PIN);
 FourBar fourBar (FOURBAR_PIN);
 SpinningLamp spinningLamp (SPINNING_LAMP_MOTOR_PIN);
 FlyingSaucer flyingSaucer (FLYINGSAUCER_PIN);
 ChainThing chainThing (CHAIN_PIN);
+Scooter scooter (SCOOTER_PIN);
 
 void setup () {
   Serial.begin(9600);
@@ -369,4 +415,5 @@ void loop () {
   spinningLamp.Update();
   flyingSaucer.Update();
   chainThing.Update();
+	scooter.Update();
 }
