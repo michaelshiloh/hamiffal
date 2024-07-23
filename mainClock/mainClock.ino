@@ -8,8 +8,8 @@
                         make classes for each device
                         as in the Adafruit Multitasking Tutorial
 
-TODO
- - maybe some randomness ?
+  TODO
+  - maybe some randomness ?
 
 */
 
@@ -19,7 +19,7 @@ TODO
 // NOTE THAT RELAY IS ACTIVE LdOW
 const int FOURBAR_PIN = 2;
 const int FLYINGSAUCER_PIN = 3;
-const int unused4 = 4;
+const int CHAIN_PIN = 4;
 const int CLICKY_PIN = 5;
 
 // MOSFETs
@@ -302,12 +302,55 @@ class FlyingSaucer
     }
 };
 
+class ChainThing
+{
+    int pinNumber;
+    int onTime = 6857;
+    int offTime = 13941;
+    int state = 0;
+    unsigned long lastStateChange = 0;
+
+  public:
+    ChainThing( int _pinNumber)
+    {
+      pinNumber = _pinNumber;
+      pinMode (pinNumber, OUTPUT);
+      digitalWrite(pinNumber, HIGH);
+    }
+
+    void Update()
+    {
+      if (!state) {
+        //  is off so check whether it is time to turn it on
+        if ((millis() - lastStateChange) > offTime) {
+          Serial.println("turn on flying saucer");
+          digitalWrite(pinNumber, LOW);
+
+          // update state
+          state = 1;
+          lastStateChange = millis();
+        }
+      } else {
+        //  is on so check whether it's time to turn it off
+        if ((millis() - lastStateChange) > onTime) {
+          Serial.println("turn off flying saucer");
+          digitalWrite(pinNumber, HIGH);
+
+          // update state
+          state = 0;
+          lastStateChange = millis();
+
+        }
+      }
+    }
+};
+
 ClickyThing clickyThing (CLICKY_PIN);
 Rattle rattle (RATTLE_PIN);
 FourBar fourBar (FOURBAR_PIN);
 SpinningLamp spinningLamp (SPINNING_LAMP_MOTOR_PIN);
 FlyingSaucer flyingSaucer (FLYINGSAUCER_PIN);
-
+ChainThing chainThing (CHAIN_PIN);
 
 void setup () {
   Serial.begin(9600);
@@ -325,4 +368,5 @@ void loop () {
   fourBar.Update();
   spinningLamp.Update();
   flyingSaucer.Update();
+  chainThing.Update();
 }
